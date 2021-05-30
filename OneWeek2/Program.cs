@@ -51,10 +51,10 @@ namespace OneWeek2
 
             #region ヘッダー書き込み
 
-            streamWriter.Write($"P3\n{ImageWidth.ToString()} {ImageHeight.ToString()}\n255\n");                
+            streamWriter.Write($"P3\n{ImageWidth.ToString()} {ImageHeight.ToString()}\n255\n");
 
             #endregion
-                
+
             for (var j = ImageHeight - 1; j >= 0; j--)
             {
                 Console.Write(_bars[j % 4]);
