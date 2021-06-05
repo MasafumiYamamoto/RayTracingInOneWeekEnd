@@ -9,14 +9,26 @@ namespace OneWeek2
         private const float AspectRatio = 16.0f / 9f;
         private const int ImageWidth = 384;
         private const int ImageHeight = (int) (ImageWidth / AspectRatio);
+        private const int SamplesPerPixel = 64;
         private static readonly char[] Bars = {'/', '-', '\\', '|'};
 
-        static void WriteColor(StreamWriter streamWriter, Vector3 pixelColor)
+        static void WriteColor(StreamWriter streamWriter, Vector3 pixelColor, int samplesPerPixel)
         {
             const float whiteValance = 255.999f;
-            var r = (int) (pixelColor.X * whiteValance);
-            var g = (int) (pixelColor.Y * whiteValance);
-            var b = (int) (pixelColor.Z * whiteValance);
+
+            var r = (pixelColor.X * whiteValance);
+            var g =  (pixelColor.Y * whiteValance);
+            var b =  (pixelColor.Z * whiteValance);
+
+            var scale = 1f / samplesPerPixel;
+            r *= scale;
+            g *= scale;
+            b *= scale;
+            
+            r = (int) r;
+            g = (int) g;
+            b = (int) b;
+
             streamWriter.Write($"{r.ToString()} {g.ToString()} {b.ToString()} \n");
         }
 
@@ -35,12 +47,11 @@ namespace OneWeek2
 
         static void Main(string[] args)
         {
-            const string fileName = "./hoge.ppm";
-
             const float viewportHeight = 2;
             const float viewportWidth = AspectRatio * viewportHeight;
             const float focalLength = 1;
 
+            var fileName = $"./hoge_{SamplesPerPixel.ToString()}spp.ppm";
             var origin = Vector3.Zero;
             var horizontal = Vector3.UnitX * viewportWidth;
             var vertical = Vector3.UnitY * viewportHeight;
@@ -50,6 +61,8 @@ namespace OneWeek2
             world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f));
             world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100));
 
+            var camera = new Camera();
+            
             using var streamWriter = new StreamWriter(fileName, false);
 
             #region ヘッダー書き込み
@@ -66,13 +79,17 @@ namespace OneWeek2
 
                 for (var i = 0; i < ImageWidth; i++)
                 {
-                    var u = (float) i / (ImageWidth - 1);
-                    var v = (float) j / (ImageHeight - 1);
+                    var pixelColor = Vector3.Zero;
+                    for (var s = 0; s < SamplesPerPixel; s++)
+                    {
+                        var u = (float) (i + MathHelper.Random()) / (ImageWidth - 1);
+                        var v = (float) (j + MathHelper.Random()) / (ImageHeight - 1);
 
-                    var r = new Ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
-                    var pixelColor = RayColor(r, world);
+                        var r = camera.GetRay(u, v);
+                        pixelColor += RayColor(r, world);
+                    }
 
-                    WriteColor(streamWriter, pixelColor);
+                    WriteColor(streamWriter, pixelColor, SamplesPerPixel);
                 }
             }
         }
