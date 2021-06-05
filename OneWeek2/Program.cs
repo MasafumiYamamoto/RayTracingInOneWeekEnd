@@ -7,8 +7,8 @@ namespace OneWeek2
     class Program
     {
         private const float AspectRatio = 16.0f / 9f;
-        private const int ImageWidth = 256;
-        private const int ImageHeight = 256;
+        private const int ImageWidth = 384;
+        private const int ImageHeight = (int) (ImageWidth / AspectRatio);
         private static readonly char[] _bars = {'/', '-', '\\', '|'};
 
 
@@ -26,9 +26,30 @@ namespace OneWeek2
             streamWriter.Write($"{r.ToString()} {g.ToString()} {b.ToString()} \n");
         }
 
+        /// <summary>
+        /// rayと球の交差判定
+        /// </summary>
+        /// <param name="center">球の中心</param>
+        /// <param name="radius">球の半径</param>
+        /// <param name="ray">飛ばしているレイ</param>
+        /// <returns></returns>
+        private static bool HitSphere(Vector3 center, float radius, Ray ray)
+        {
+            var oc = ray.Origin - center;
+            var a = Vector3.Dot(ray.Direction, ray.Direction);
+            var b = 2 * Vector3.Dot(oc, ray.Direction);
+            var c = Vector3.Dot(oc, oc) - radius * radius;
+            var discriminant = b * b - 4 * a * c;
+            return discriminant > 0;
+        }
 
         static Vector3 RayColor(in Ray ray)
         {
+            if (HitSphere(new Vector3(0, 0, -1), 0.5f, ray))
+            {
+                return Vector3.UnitX;
+            }
+
             var unitDirection = Vector3.Normalize(ray.Direction);
             var t = 0.5f * (unitDirection.Y + 1);
             return (1 - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1f);
