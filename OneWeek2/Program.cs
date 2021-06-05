@@ -9,13 +9,7 @@ namespace OneWeek2
         private const float AspectRatio = 16.0f / 9f;
         private const int ImageWidth = 384;
         private const int ImageHeight = (int) (ImageWidth / AspectRatio);
-        private static readonly char[] _bars = {'/', '-', '\\', '|'};
-
-
-        static void WriteColor(ref string outStr, Vector3 pixelColor)
-        {
-            outStr += $"{pixelColor.X.ToString()} {pixelColor.Y.ToString()} {pixelColor.Z.ToString()} \n";
-        }
+        private static readonly char[] Bars = {'/', '-', '\\', '|'};
 
         static void WriteColor(StreamWriter streamWriter, Vector3 pixelColor)
         {
@@ -26,28 +20,12 @@ namespace OneWeek2
             streamWriter.Write($"{r.ToString()} {g.ToString()} {b.ToString()} \n");
         }
 
-        /// <summary>
-        /// rayと球の交差判定
-        /// </summary>
-        /// <param name="center">球の中心</param>
-        /// <param name="radius">球の半径</param>
-        /// <param name="ray">飛ばしているレイ</param>
-        /// <returns></returns>
-        private static bool HitSphere(Vector3 center, float radius, Ray ray)
+        static Vector3 RayColor(in Ray ray, in IHittable world)
         {
-            var oc = ray.Origin - center;
-            var a = Vector3.Dot(ray.Direction, ray.Direction);
-            var b = 2 * Vector3.Dot(oc, ray.Direction);
-            var c = Vector3.Dot(oc, oc) - radius * radius;
-            var discriminant = b * b - 4 * a * c;
-            return discriminant > 0;
-        }
-
-        static Vector3 RayColor(in Ray ray)
-        {
-            if (HitSphere(new Vector3(0, 0, -1), 0.5f, ray))
+            var hitRecord = new HitRecord();
+            if (world.Hit(ray, 0, float.MaxValue, ref hitRecord))
             {
-                return Vector3.UnitX;
+                return 0.5f * (hitRecord.Normal + Vector3.One);
             }
 
             var unitDirection = Vector3.Normalize(ray.Direction);
@@ -68,6 +46,10 @@ namespace OneWeek2
             var vertical = Vector3.UnitY * viewportHeight;
             var lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Vector3.UnitZ * focalLength;
 
+            var world = new HittableList();
+            world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f));
+            world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100));
+
             using var streamWriter = new StreamWriter(fileName, false);
 
             #region ヘッダー書き込み
@@ -78,7 +60,7 @@ namespace OneWeek2
 
             for (var j = ImageHeight - 1; j >= 0; j--)
             {
-                Console.Write(_bars[j % 4]);
+                Console.Write(Bars[j % 4]);
                 Console.Write($"{((int) 100.0 * (ImageHeight - j) / ImageHeight).ToString()}%");
                 Console.SetCursorPosition(0, Console.CursorTop);
 
@@ -88,9 +70,8 @@ namespace OneWeek2
                     var v = (float) j / (ImageHeight - 1);
 
                     var r = new Ray(origin, lowerLeftCorner + u * horizontal + v * vertical - origin);
-                    var pixelColor = RayColor(r);
+                    var pixelColor = RayColor(r, world);
 
-                    // WriteColor(ref content, pixelColor);
                     WriteColor(streamWriter, pixelColor);
                 }
             }

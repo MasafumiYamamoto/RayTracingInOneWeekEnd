@@ -18,7 +18,7 @@ namespace OneWeek2
 
         public Vector3 At(float t)
         {
-            return _origin * t * _direction;
+            return _origin + t * _direction;
         }
     }
 }
