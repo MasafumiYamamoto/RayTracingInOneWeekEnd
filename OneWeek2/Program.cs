@@ -10,34 +10,41 @@ namespace OneWeek2
         private const int ImageWidth = 384;
         private const int ImageHeight = (int) (ImageWidth / AspectRatio);
         private const int SamplesPerPixel = 64;
+        private const int MaxDepth = 50;
+        private const float Gamma = 2f;
         private static readonly char[] Bars = {'/', '-', '\\', '|'};
 
         static void WriteColor(StreamWriter streamWriter, Vector3 pixelColor, int samplesPerPixel)
         {
             const float whiteValance = 255.999f;
 
-            var r = (pixelColor.X * whiteValance);
-            var g =  (pixelColor.Y * whiteValance);
-            var b =  (pixelColor.Z * whiteValance);
-
+            // 色の値をサンプル数で除算し、ガンマ補正を行う
             var scale = 1f / samplesPerPixel;
-            r *= scale;
-            g *= scale;
-            b *= scale;
-            
-            r = (int) r;
-            g = (int) g;
-            b = (int) b;
+            var r = MathF.Pow(pixelColor.X * scale, 1 / Gamma);
+            var g = MathF.Pow(pixelColor.Y * scale, 1 / Gamma);
+            var b = MathF.Pow(pixelColor.Z * scale, 1 / Gamma);
+
+            // 各成分を[0,1]にクランプして書き込み
+            r = (int) (whiteValance * Math.Clamp(r, 0, 1));
+            g = (int) (whiteValance * Math.Clamp(g, 0, 1));
+            b = (int) (whiteValance * Math.Clamp(b, 0, 1));
 
             streamWriter.Write($"{r.ToString()} {g.ToString()} {b.ToString()} \n");
         }
 
-        static Vector3 RayColor(in Ray ray, in IHittable world)
+        static Vector3 RayColor(in Ray ray, in IHittable world, int depth)
         {
             var hitRecord = new HitRecord();
-            if (world.Hit(ray, 0, float.MaxValue, ref hitRecord))
+            if (depth<=0)
             {
-                return 0.5f * (hitRecord.Normal + Vector3.One);
+                // 反射回数が一定回数以上になったらその時点で打ち切り
+                return Vector3.Zero;
+            }
+            
+            if (world.Hit(ray, 0.001f, float.MaxValue, ref hitRecord))
+            {
+                var target = hitRecord.P + hitRecord.Normal + MathHelper.RandomInHemisphere(hitRecord.Normal);
+                return 0.5f * RayColor(new Ray(hitRecord.P, target - hitRecord.P), world, --depth);
             }
 
             var unitDirection = Vector3.Normalize(ray.Direction);
@@ -86,7 +93,7 @@ namespace OneWeek2
                         var v = (float) (j + MathHelper.Random()) / (ImageHeight - 1);
 
                         var r = camera.GetRay(u, v);
-                        pixelColor += RayColor(r, world);
+                        pixelColor += RayColor(r, world, MaxDepth);
                     }
 
                     WriteColor(streamWriter, pixelColor, SamplesPerPixel);
