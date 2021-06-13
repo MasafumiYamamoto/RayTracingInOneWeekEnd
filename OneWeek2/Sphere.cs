@@ -7,15 +7,19 @@ namespace OneWeek2
     {
         private readonly Vector3 _center;
         private readonly float _radius;
+        private readonly Material _material;
 
         public Vector3 Center => _center;
 
         public float Radius => _radius;
+
+        public Material Material => _material;
         
-        public Sphere(Vector3 cen, float r)
+        public Sphere(Vector3 cen, float r, Material material)
         {
             _center = cen;
             _radius = r;
+            _material = material;
         }
         
         public bool Hit(in Ray ray, in float tMin, in float tMax, ref HitRecord rec)
@@ -36,6 +40,7 @@ namespace OneWeek2
                     rec.P = ray.At(rec.T);
                     var outwardNormal = (rec.P - _center) / _radius;
                     rec.SetFaceNormal(ray, outwardNormal);
+                    rec.Material = _material;
                     return true;
                 }
 
@@ -46,6 +51,7 @@ namespace OneWeek2
                     rec.P = ray.At(rec.T);
                     var outwardNormal = (rec.P - _center) / _radius;
                     rec.SetFaceNormal(ray, outwardNormal);
+                    rec.Material = _material;
                     return true;
                 }
             }

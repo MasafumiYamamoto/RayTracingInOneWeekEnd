@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Numerics;
+using OneWeek2.Materials;
 
 namespace OneWeek2
 {
@@ -43,8 +44,12 @@ namespace OneWeek2
             
             if (world.Hit(ray, 0.001f, float.MaxValue, ref hitRecord))
             {
-                var target = hitRecord.P + hitRecord.Normal + MathHelper.RandomInHemisphere(hitRecord.Normal);
-                return 0.5f * RayColor(new Ray(hitRecord.P, target - hitRecord.P), world, --depth);
+                if (hitRecord.Material.Scatter(ray, hitRecord, out var attenuation, out var scattered))
+                {
+                    return attenuation * RayColor(scattered, world, --depth);
+                }
+
+                return Vector3.Zero;
             }
 
             var unitDirection = Vector3.Normalize(ray.Direction);
@@ -65,8 +70,10 @@ namespace OneWeek2
             var lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Vector3.UnitZ * focalLength;
 
             var world = new HittableList();
-            world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f));
-            world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100));
+            world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f, new Lambertian(new Vector3(0.7f, 0.3f, 0.3f))));
+            world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
+            world.Objects.Add(new Sphere(new Vector3(1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.1f)));
+            world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.8f, 0.8f), 0.9f)));
 
             var camera = new Camera();
             

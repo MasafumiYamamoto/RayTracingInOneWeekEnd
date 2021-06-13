@@ -73,5 +73,10 @@ namespace OneWeek2
             var r = MathF.Sqrt(1 - z * z);
             return new Vector3(r * MathF.Cos(a), r * MathF.Sin(a), z);
         }
+
+        public static Vector3 Reflect(in Vector3 v, in Vector3 n)
+        {
+            return v - 2 * Vector3.Dot(v, n) * n;
+        }
     }
 }

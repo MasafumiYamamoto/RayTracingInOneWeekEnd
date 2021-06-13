@@ -8,6 +8,7 @@ namespace OneWeek2
         public Vector3 P;
         public Vector3 Normal;
         public bool FrontFace;
+        public Material Material;
 
         public void SetFaceNormal(Ray ray, Vector3 outwardNormal)
         {
