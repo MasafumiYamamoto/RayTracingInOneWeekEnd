@@ -4,10 +4,12 @@ namespace OneWeek2.Materials
 {
     public class Metal : Material
     {
+        public Vector3 Albedo { get; }
         public float Fuzz { get; }
         
-        public Metal(Vector3 albedo, float fuzz) : base(albedo)
+        public Metal(Vector3 albedo, float fuzz)
         {
+            Albedo = albedo;
             Fuzz = fuzz < 1 ? fuzz : 1;
         }
 

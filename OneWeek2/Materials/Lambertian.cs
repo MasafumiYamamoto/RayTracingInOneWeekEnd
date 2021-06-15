@@ -4,10 +4,12 @@ namespace OneWeek2.Materials
 {
     public class Lambertian : Material
     {
-        public Lambertian(Vector3 albedo) : base(albedo)
-        {
-        }
+        public Vector3 Albedo { get; }
 
+        public Lambertian(Vector3 albedo)
+        {
+            Albedo = albedo;
+        }
         
         public override bool Scatter(in Ray ray, in HitRecord hitRecord, out Vector3 attenuation, out Ray scattered)
         {

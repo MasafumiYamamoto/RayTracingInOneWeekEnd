@@ -10,7 +10,7 @@ namespace OneWeek2.Materials
     {
         public float RefIdx { get; }
         
-        public Dielectric(Vector3 albedo, float refIdx) : base(albedo)
+        public Dielectric(float refIdx)
         {
             RefIdx = refIdx;
         }
