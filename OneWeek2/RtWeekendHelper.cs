@@ -78,5 +78,27 @@ namespace OneWeek2
         {
             return v - 2 * Vector3.Dot(v, n) * n;
         }
+
+        /// <summary>
+        /// スネルの法則に基づく屈折の式
+        /// </summary>
+        /// <param name="uv"></param>
+        /// <param name="n"></param>
+        /// <param name="etaIOverEatT"></param>
+        /// <returns></returns>
+        public static Vector3 Refract(in Vector3 uv, in Vector3 n, float etaIOverEatT)
+        {
+            var cos = MathF.Min(Vector3.Dot(-uv, n), 1);
+            var rOutParallel = etaIOverEatT * (uv + cos * n);
+            var rOutPrep = -MathF.Sqrt(1 - rOutParallel.LengthSquared()) * n;
+            return rOutParallel + rOutPrep;
+        }
+
+        public static float Schlick(float cos, float refIdx)
+        {
+            var r0 = (1 - refIdx) / (1 + refIdx);
+            r0 *= r0;
+            return r0 + (1 - r0) * MathF.Pow(1 - cos, 5);
+        }
     }
 }

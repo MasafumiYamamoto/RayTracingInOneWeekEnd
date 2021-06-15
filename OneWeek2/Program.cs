@@ -73,7 +73,7 @@ namespace OneWeek2
             world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f, new Lambertian(new Vector3(0.7f, 0.3f, 0.3f))));
             world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
             world.Objects.Add(new Sphere(new Vector3(1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.1f)));
-            world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.8f, 0.8f), 0.9f)));
+            world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), -0.5f, new Dielectric(new Vector3(0.8f, 0.8f, 0.8f), 1.5f)));
 
             var camera = new Camera();
             
