@@ -75,8 +75,8 @@ namespace OneWeek2
             world.Objects.Add(new Sphere(new Vector3(1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.3f)));
             world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), 0.5f, new Dielectric(1.5f)));
             world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), -0.1f, new Dielectric(1.5f)));
-
-            var camera = new Camera();
+            
+            var camera = new Camera(new Vector3(-2, 2, 1), new Vector3(0, 0, -1), Vector3.UnitY, 20, AspectRatio);
             
             using var streamWriter = new StreamWriter(fileName, false);
 

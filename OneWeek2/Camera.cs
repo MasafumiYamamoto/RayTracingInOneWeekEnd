@@ -1,25 +1,38 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace OneWeek2
 {
     public class Camera
     {
-        private const float AspectRatio = 16f / 9f;
-        private const float ViewportHeight = 2f;
-        private const float ViewportWidth = AspectRatio * ViewportHeight;
-        private const float FocalLength = 1f;
-
         public Vector3 Origin { get; }
         public Vector3 LowerLeftCorner { get; }
         public Vector3 Horizontal { get; }
         public Vector3 Vertical { get; }
-        
-        public Camera()
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="lookFrom">カメラ位置</param>
+        /// <param name="lookAt">カメラ注視点</param>
+        /// <param name="viewUp">カメラ上ベクトル</param>
+        /// <param name="vFov">垂直視野(角度)</param>
+        /// <param name="aspectRatio">アスペクト比率</param>
+        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio)
         {
-            Origin = Vector3.Zero;
-            Horizontal = new Vector3(ViewportWidth, 0, 0);
-            Vertical = new Vector3(0, ViewportHeight, 0);
-            LowerLeftCorner = Origin - Horizontal / 2 - Vertical / 2 - new Vector3(0, 0, FocalLength);
+            var theta = MathHelper.Degree2Radian(vFov);
+            var h = MathF.Tan(theta / 2);
+            var viewportHeight = 2 * h;
+            var viewportWidth = aspectRatio * viewportHeight;
+
+            var w = Vector3.Normalize(lookFrom - lookAt);
+            var u = Vector3.Normalize(Vector3.Cross(viewUp, w));
+            var v = Vector3.Cross(w, u);
+
+            Origin = lookFrom;
+            Horizontal = viewportWidth * u;
+            Vertical = viewportHeight * v;
+            LowerLeftCorner = Origin - Horizontal / 2 - Vertical / 2 - w;
         }
 
         public Ray GetRay(float u, float v)
