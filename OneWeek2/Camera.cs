@@ -9,6 +9,14 @@ namespace OneWeek2
         public Vector3 LowerLeftCorner { get; }
         public Vector3 Horizontal { get; }
         public Vector3 Vertical { get; }
+        
+        public float LensRadius { get; }
+        
+        public Vector3 U { get; }
+        
+        public Vector3 V { get; }
+        
+        public Vector3 W { get; }
 
         /// <summary>
         /// 
@@ -18,26 +26,34 @@ namespace OneWeek2
         /// <param name="viewUp">カメラ上ベクトル</param>
         /// <param name="vFov">垂直視野(角度)</param>
         /// <param name="aspectRatio">アスペクト比率</param>
-        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio)
+        /// <param name="aperture"></param>
+        /// <param name="focusDistance"></param>
+        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio, float aperture, float focusDistance)
         {
             var theta = MathHelper.Degree2Radian(vFov);
             var h = MathF.Tan(theta / 2);
             var viewportHeight = 2 * h;
             var viewportWidth = aspectRatio * viewportHeight;
 
-            var w = Vector3.Normalize(lookFrom - lookAt);
-            var u = Vector3.Normalize(Vector3.Cross(viewUp, w));
-            var v = Vector3.Cross(w, u);
+            W = Vector3.Normalize(lookFrom - lookAt);
+            U = Vector3.Normalize(Vector3.Cross(viewUp, W));
+            V = Vector3.Cross(W, U);
 
             Origin = lookFrom;
-            Horizontal = viewportWidth * u;
-            Vertical = viewportHeight * v;
-            LowerLeftCorner = Origin - Horizontal / 2 - Vertical / 2 - w;
+            Horizontal = focusDistance * viewportWidth * U;
+            Vertical = focusDistance * viewportHeight * V;
+            LowerLeftCorner = Origin - Horizontal / 2 - Vertical / 2 - focusDistance * W;
+
+            LensRadius = aperture / 2;
         }
 
-        public Ray GetRay(float u, float v)
+        public Ray GetRay(float s, float t)
         {
-            return new Ray(Origin, LowerLeftCorner + u * Horizontal + v * Vertical - Origin);
+            var rd = LensRadius * MathHelper.RandomInUnitDisc();
+            var offset = U * rd.X + V * rd.Y;
+
+            return new Ray(Origin + offset,
+                LowerLeftCorner + s * Horizontal + t * Vertical - Origin - offset);
         }
     }
 }

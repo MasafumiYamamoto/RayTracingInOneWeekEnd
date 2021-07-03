@@ -73,7 +73,18 @@ namespace OneWeek2
             var r = MathF.Sqrt(1 - z * z);
             return new Vector3(r * MathF.Cos(a), r * MathF.Sin(a), z);
         }
-
+        
+        /// <summary>
+        /// 半径１の円盤上のランダムな点を返す
+        /// </summary>
+        /// <returns></returns>
+        public static Vector3 RandomInUnitDisc()
+        {
+            var r = Random();
+            var theta = Random(0, 2 * MathF.PI);
+            return new Vector3(r * MathF.Cos(theta), r * MathF.Sin(theta), 0);
+        }
+        
         public static Vector3 Reflect(in Vector3 v, in Vector3 n)
         {
             return v - 2 * Vector3.Dot(v, n) * n;
