@@ -3,11 +3,11 @@ using System.Numerics;
 
 namespace OneWeek2
 {
-    static class MathHelper
+    public class MathHelper
     {
-        private static readonly Random RandomInstance = new Random();
+        private readonly Random RandomInstance = new();
         
-        public static float Degree2Radian(float degree)
+        public float Degree2Radian(float degree)
         {
             return (float) (degree * Math.PI / 180);
         }
@@ -18,8 +18,9 @@ namespace OneWeek2
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public static float Random(float min=0, float max=1)
+        public float Random(float min=0, float max=1)
         {
+            // return min + (max - min) * (float)new Random().NextDouble();
             return min + (max - min) * (float) RandomInstance.NextDouble();
         }
 
@@ -30,17 +31,17 @@ namespace OneWeek2
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public static float Clamp(float x, float min, float max)
+        public float Clamp(float x, float min, float max)
         {
             return Math.Clamp(x, min, max);
         }
 
-        private static Vector3 Vector3Random(float min, float max)
+        private Vector3 Vector3Random(float min, float max)
         {
             return new(Random(min, max), Random(min, max), Random(min, max));
         }
 
-        public static Vector3 RandomInUnitSphere()
+        public Vector3 RandomInUnitSphere()
         {
             while (true)
             {
@@ -54,7 +55,7 @@ namespace OneWeek2
             }
         }
 
-        public static Vector3 RandomInHemisphere(in Vector3 normal)
+        public Vector3 RandomInHemisphere(in Vector3 normal)
         {
             var inUnitSphere = RandomInUnitSphere();
             if (Vector3.Dot(inUnitSphere, normal)>0)
@@ -66,7 +67,7 @@ namespace OneWeek2
             return -inUnitSphere;
         }
 
-        public static Vector3 RandomUnitVector()
+        public Vector3 RandomUnitVector()
         {
             var a = Random(0, 2 * MathF.PI);
             var z = Random(-1, 1);
@@ -78,14 +79,14 @@ namespace OneWeek2
         /// 半径１の円盤上のランダムな点を返す
         /// </summary>
         /// <returns></returns>
-        public static Vector3 RandomInUnitDisc()
+        public Vector3 RandomInUnitDisc()
         {
             var r = Random();
             var theta = Random(0, 2 * MathF.PI);
             return new Vector3(r * MathF.Cos(theta), r * MathF.Sin(theta), 0);
         }
         
-        public static Vector3 Reflect(in Vector3 v, in Vector3 n)
+        public Vector3 Reflect(in Vector3 v, in Vector3 n)
         {
             return v - 2 * Vector3.Dot(v, n) * n;
         }
@@ -97,7 +98,7 @@ namespace OneWeek2
         /// <param name="n"></param>
         /// <param name="etaIOverEatT"></param>
         /// <returns></returns>
-        public static Vector3 Refract(in Vector3 uv, in Vector3 n, float etaIOverEatT)
+        public Vector3 Refract(in Vector3 uv, in Vector3 n, float etaIOverEatT)
         {
             var cos = MathF.Min(Vector3.Dot(-uv, n), 1);
             var rOutParallel = etaIOverEatT * (uv + cos * n);
@@ -105,14 +106,14 @@ namespace OneWeek2
             return rOutParallel + rOutPrep;
         }
 
-        public static float Schlick(float cos, float refIdx)
+        public float Schlick(float cos, float refIdx)
         {
             var r0 = (1 - refIdx) / (1 + refIdx);
             r0 *= r0;
             return r0 + (1 - r0) * MathF.Pow(1 - cos, 5);
         }
 
-        public static Vector3 RandomColor(float min = 0, float max = 1)
+        public Vector3 RandomColor(float min = 0, float max = 1)
         {
             return new(Random(min, max), Random(min, max), Random(min, max));
         }

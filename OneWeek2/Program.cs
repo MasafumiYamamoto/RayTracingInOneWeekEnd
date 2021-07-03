@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 using OneWeek2.Materials;
 
 namespace OneWeek2
@@ -33,9 +35,11 @@ namespace OneWeek2
             streamWriter.Write($"{r.ToString()} {g.ToString()} {b.ToString()} \n");
         }
 
-        static Vector3 RayColor(in Ray ray, in IHittable world, int depth)
+        // static Vector3 RayColor(in Ray ray, in IHittable world, int depth, ref HitRecord hitRecord)
+        static Vector3 RayColor(in Ray ray, in IHittable world, int depth, MathHelper mathHelper)
         {
             var hitRecord = new HitRecord();
+            hitRecord.Clear();
             if (depth<=0)
             {
                 // 反射回数が一定回数以上になったらその時点で打ち切り
@@ -44,9 +48,10 @@ namespace OneWeek2
             
             if (world.Hit(ray, 0.001f, float.MaxValue, ref hitRecord))
             {
-                if (hitRecord.Material.Scatter(ray, hitRecord, out var attenuation, out var scattered))
+                if (hitRecord.Material.Scatter(ray, hitRecord, out var attenuation, out var scattered, mathHelper))
                 {
-                    return attenuation * RayColor(scattered, world, --depth);
+                    // return attenuation * RayColor(scattered, world, --depth, ref hitRecord);
+                    return attenuation * RayColor(scattered, world, --depth, mathHelper);
                 }
 
                 return Vector3.Zero;
@@ -60,6 +65,7 @@ namespace OneWeek2
         private static HittableList GenerateRandomScene(int worldSize)
         {
             var world = new HittableList();
+            var mathHelper = new MathHelper();
 
             var groundMaterial = new Lambertian(new Vector3(0.5f, 0.5f, 0.5f));
             world.Objects.Add(new Sphere(new Vector3(0, -1000, 0), 1000, groundMaterial));
@@ -67,8 +73,8 @@ namespace OneWeek2
             {
                 for (var b = -worldSize; b < worldSize; b++)
                 {
-                    var matSelection = MathHelper.Random();
-                    var center = new Vector3(a + 0.9f * MathHelper.Random(), 0.2f, b + 0.9f * MathHelper.Random());
+                    var matSelection = mathHelper.Random();
+                    var center = new Vector3(a + 0.9f * mathHelper.Random(), 0.2f, b + 0.9f * mathHelper.Random());
 
                     if ((center - new Vector3(4, 0.2f, 0)).Length() <= 0.9)
                     {
@@ -78,14 +84,14 @@ namespace OneWeek2
                     if (matSelection < 0.8)
                     {
                         // diffuse 
-                        var albedo = new Lambertian(MathHelper.RandomColor() * MathHelper.RandomColor());
+                        var albedo = new Lambertian(mathHelper.RandomColor() * mathHelper.RandomColor());
                         world.Objects.Add(new Sphere(center, 0.2f, albedo));
                     }
                     else if (matSelection < 0.95)
                     {
                         // metal
-                        var albedo = MathHelper.RandomColor(0.5f, 1);
-                        var fuzz = MathHelper.Random(0, 0.5f);
+                        var albedo = mathHelper.RandomColor(0.5f, 1);
+                        var fuzz = mathHelper.Random(0, 0.5f);
                         var metal = new Metal(albedo, fuzz);
                         world.Objects.Add(new Sphere(center, 0.2f, metal));
                     }
@@ -122,6 +128,8 @@ namespace OneWeek2
             var camera = new Camera(lookFrom, lookAt, viewUp, 20, AspectRatio, aperture, distToFocus);
             
             using var streamWriter = new StreamWriter(fileName, false);
+            // var pixelColors = new Vector3[ImageWidth * ImageHeight];
+            var pixelColors = new Vector3[ImageWidth];
 
             #region ヘッダー書き込み
 
@@ -129,27 +137,54 @@ namespace OneWeek2
 
             #endregion
 
+            var options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 4;
             for (var j = ImageHeight - 1; j >= 0; j--)
             {
                 Console.Write(Bars[j % 4]);
                 Console.Write($"{((int) 100.0 * (ImageHeight - j) / ImageHeight).ToString()}%");
                 Console.SetCursorPosition(0, Console.CursorTop);
 
-                for (var i = 0; i < ImageWidth; i++)
+                // for (var i = 0; i < ImageWidth; i++)
+                    Parallel.For(0, ImageWidth - 1, options, i =>
                 {
+                    // make mathHelper instance 
+                    var mathHelper = new MathHelper();
+                    
+                    // var hitRecord = new HitRecord();
+                    pixelColors[i] = Vector3.Zero;
                     var pixelColor = Vector3.Zero;
                     for (var s = 0; s < SamplesPerPixel; s++)
                     {
-                        var u = (float) (i + MathHelper.Random()) / (ImageWidth - 1);
-                        var v = (float) (j + MathHelper.Random()) / (ImageHeight - 1);
+                        var u = (float) (i + mathHelper.Random()) / (ImageWidth - 1);
+                        var v = (float) (j + mathHelper.Random()) / (ImageHeight - 1);
 
                         var r = camera.GetRay(u, v);
-                        pixelColor += RayColor(r, world, MaxDepth);
+                        pixelColor += RayColor(r, world, MaxDepth, mathHelper);
+                        // pixelColor += RayColor(r, world, 1, ref hitRecord);
                     }
-                    
+
+                    // pixelColors[i + j * ImageWidth] = pixelColor;
+                    pixelColors[i] = pixelColor;
+                    });
+                // }
+
+                for (var i = 0; i < ImageWidth; i++)
+                {
+                    var pixelColor = pixelColors[i];
                     WriteColor(streamWriter, pixelColor, SamplesPerPixel);
                 }
             }
+            //
+            // for (var j = 0; j < ImageHeight; j++)
+            // {
+            //     for (var i = 0; i < ImageWidth; i++)
+            //     {
+            //         var pixelColor = pixelColors[i + j * ImageWidth];
+            //         WriteColor(streamWriter, pixelColor, SamplesPerPixel);
+            //     }
+            // }
+
             Console.Write($"Finish!! {DateTime.Now}\n");
         }
     }

@@ -18,6 +18,8 @@ namespace OneWeek2
         
         public Vector3 W { get; }
 
+        private readonly MathHelper _mathHelper = new();
+
         /// <summary>
         /// 
         /// </summary>
@@ -30,7 +32,7 @@ namespace OneWeek2
         /// <param name="focusDistance"></param>
         public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio, float aperture, float focusDistance)
         {
-            var theta = MathHelper.Degree2Radian(vFov);
+            var theta = _mathHelper.Degree2Radian(vFov);
             var h = MathF.Tan(theta / 2);
             var viewportHeight = 2 * h;
             var viewportWidth = aspectRatio * viewportHeight;
@@ -49,7 +51,7 @@ namespace OneWeek2
 
         public Ray GetRay(float s, float t)
         {
-            var rd = LensRadius * MathHelper.RandomInUnitDisc();
+            var rd = LensRadius * _mathHelper.RandomInUnitDisc();
             var offset = U * rd.X + V * rd.Y;
 
             return new Ray(Origin + offset,

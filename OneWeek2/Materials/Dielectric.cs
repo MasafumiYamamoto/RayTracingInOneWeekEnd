@@ -15,7 +15,8 @@ namespace OneWeek2.Materials
             RefIdx = refIdx;
         }
 
-        public override bool Scatter(in Ray ray, in HitRecord hitRecord, out Vector3 attenuation, out Ray scattered)
+        public override bool Scatter(in Ray ray, in HitRecord hitRecord, out Vector3 attenuation, out Ray scattered,
+            MathHelper mathHelper)
         {
             attenuation = Vector3.One;
             float etaIOverEtaT = 0;
@@ -36,19 +37,19 @@ namespace OneWeek2.Materials
             // 全反射
             if (etaIOverEtaT * sin > 1)
             {
-                var reflected = MathHelper.Reflect(unitDirection, hitRecord.Normal);
+                var reflected = mathHelper.Reflect(unitDirection, hitRecord.Normal);
                 scattered = new Ray(hitRecord.P, reflected);
                 return true;
             }
 
-            var reflectProb = MathHelper.Schlick(cos, etaIOverEtaT);
-            if (MathHelper.Random() < reflectProb)
+            var reflectProb = mathHelper.Schlick(cos, etaIOverEtaT);
+            if (mathHelper.Random() < reflectProb)
             {
-                var reflected = MathHelper.Reflect(unitDirection, hitRecord.Normal);
+                var reflected = mathHelper.Reflect(unitDirection, hitRecord.Normal);
                 scattered = new Ray(hitRecord.P, reflected);
                 return true;
             }
-            var refracted = MathHelper.Refract(unitDirection, hitRecord.Normal, etaIOverEtaT);
+            var refracted = mathHelper.Refract(unitDirection, hitRecord.Normal, etaIOverEtaT);
             scattered = new Ray(hitRecord.P, refracted);
             return true;
         }

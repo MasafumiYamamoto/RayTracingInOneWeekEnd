@@ -15,6 +15,15 @@ namespace OneWeek2
             FrontFace = Vector3.Dot(ray.Direction, outwardNormal) < 0;
             Normal = FrontFace ? outwardNormal : -outwardNormal;
         }
+
+        public void Clear()
+        {
+            T = 0;
+            P = Vector3.Zero;
+            Normal = Vector3.UnitY;
+            FrontFace = true;
+            Material = default;
+        }
     }
     
     public interface IHittable

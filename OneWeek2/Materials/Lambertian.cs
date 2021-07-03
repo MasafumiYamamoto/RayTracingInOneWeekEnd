@@ -11,9 +11,10 @@ namespace OneWeek2.Materials
             Albedo = albedo;
         }
         
-        public override bool Scatter(in Ray ray, in HitRecord hitRecord, out Vector3 attenuation, out Ray scattered)
+        public override bool Scatter(in Ray ray, in HitRecord hitRecord, out Vector3 attenuation, out Ray scattered,
+            MathHelper mathHelper)
         {
-            var scatterDirection = hitRecord.Normal + MathHelper.RandomUnitVector();
+            var scatterDirection = hitRecord.Normal + mathHelper.RandomUnitVector();
             scattered = new Ray(hitRecord.P, scatterDirection);
             attenuation = Albedo;
             return true;
