@@ -111,5 +111,10 @@ namespace OneWeek2
             r0 *= r0;
             return r0 + (1 - r0) * MathF.Pow(1 - cos, 5);
         }
+
+        public static Vector3 RandomColor(float min = 0, float max = 1)
+        {
+            return new(Random(min, max), Random(min, max), Random(min, max));
+        }
     }
 }

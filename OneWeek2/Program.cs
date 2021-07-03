@@ -57,30 +57,68 @@ namespace OneWeek2
             return (1 - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1f);
         }
 
+        private static HittableList GenerateRandomScene(int worldSize)
+        {
+            var world = new HittableList();
+
+            var groundMaterial = new Lambertian(new Vector3(0.5f, 0.5f, 0.5f));
+            world.Objects.Add(new Sphere(new Vector3(0, -1000, 0), 1000, groundMaterial));
+            for (var a = -worldSize; a < worldSize; a++)
+            {
+                for (var b = -worldSize; b < worldSize; b++)
+                {
+                    var matSelection = MathHelper.Random();
+                    var center = new Vector3(a + 0.9f * MathHelper.Random(), 0.2f, b + 0.9f * MathHelper.Random());
+
+                    if ((center - new Vector3(4, 0.2f, 0)).Length() <= 0.9)
+                    {
+                        continue;
+                    }
+
+                    if (matSelection < 0.8)
+                    {
+                        // diffuse 
+                        var albedo = new Lambertian(MathHelper.RandomColor() * MathHelper.RandomColor());
+                        world.Objects.Add(new Sphere(center, 0.2f, albedo));
+                    }
+                    else if (matSelection < 0.95)
+                    {
+                        // metal
+                        var albedo = MathHelper.RandomColor(0.5f, 1);
+                        var fuzz = MathHelper.Random(0, 0.5f);
+                        var metal = new Metal(albedo, fuzz);
+                        world.Objects.Add(new Sphere(center, 0.2f, metal));
+                    }
+                    else
+                    {
+                        // glass
+                        var dielectric = new Dielectric(2.5f);
+                        world.Objects.Add(new Sphere(center, 0.2f, dielectric));
+                    }
+                }
+            }
+
+            var material1 = new Dielectric(1.5f);
+            world.Objects.Add(new Sphere(Vector3.UnitY, 1.0f, material1));
+            var material2 = new Lambertian(new Vector3(0.9f, 0.55f, 0f));
+            world.Objects.Add(new Sphere(new Vector3(-4f, 1f, 0f), 1.0f, material2));
+            var material3 = new Metal(new Vector3(0.7f, 0.6f, 0.5f), 0);
+            world.Objects.Add(new Sphere(new Vector3(4, 1, 0), 1, material3));
+            return world;
+        }
+
         static void Main(string[] args)
         {
-            const float viewportHeight = 2;
-            const float viewportWidth = AspectRatio * viewportHeight;
-            const float focalLength = 1;
-
+            Console.Write($"Start {DateTime.Now}\n");
+            
             var fileName = $"./hoge_{SamplesPerPixel.ToString()}spp.ppm";
-            var origin = Vector3.Zero;
-            var horizontal = Vector3.UnitX * viewportWidth;
-            var vertical = Vector3.UnitY * viewportHeight;
-            var lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - Vector3.UnitZ * focalLength;
-
-            var world = new HittableList();
-            world.Objects.Add(new Sphere(new Vector3(0, 0, -1), 0.5f, new Lambertian(new Vector3(0.1f, 0.2f, 0.5f))));
-            world.Objects.Add(new Sphere(new Vector3(0, -100.5f, -1), 100, new Lambertian(new Vector3(0.8f, 0.8f, 0.0f))));
-            world.Objects.Add(new Sphere(new Vector3(1, 0, -1), 0.5f, new Metal(new Vector3(0.8f, 0.6f, 0.2f), 0.3f)));
-            world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), 0.5f, new Dielectric(1.5f)));
-            world.Objects.Add(new Sphere(new Vector3(-1, 0, -1), -0.1f, new Dielectric(1.5f)));
-
-            var lookFrom = new Vector3(3, 3, 2);
-            var lookAt = new Vector3(0, 0, -1);
+            
+            var world = GenerateRandomScene(11);
+            var lookFrom = new Vector3(13, 2, 3);
+            var lookAt = new Vector3(0, 0, 0);
             var viewUp = Vector3.UnitY;
-            var distToFocus = (lookFrom - lookAt).Length();
-            var aperture = 2;
+            var distToFocus = 10;
+            var aperture = 0.1f;
             var camera = new Camera(lookFrom, lookAt, viewUp, 20, AspectRatio, aperture, distToFocus);
             
             using var streamWriter = new StreamWriter(fileName, false);
@@ -108,10 +146,11 @@ namespace OneWeek2
                         var r = camera.GetRay(u, v);
                         pixelColor += RayColor(r, world, MaxDepth);
                     }
-
+                    
                     WriteColor(streamWriter, pixelColor, SamplesPerPixel);
                 }
             }
+            Console.Write($"Finish!! {DateTime.Now}\n");
         }
     }
 }
