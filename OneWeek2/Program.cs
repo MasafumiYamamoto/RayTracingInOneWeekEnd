@@ -83,7 +83,8 @@ namespace OneWeek2
                     {
                         // diffuse 
                         var albedo = new Lambertian(mathHelper.RandomColor() * mathHelper.RandomColor());
-                        world.Objects.Add(new Sphere(center, 0.2f, albedo));
+                        var center2 = center + new Vector3(0, mathHelper.Random(0, 0.5f), 0);
+                        world.Objects.Add(new MovingSphere(center, center2, 0, 1, 0.2f, albedo));
                     }
                     else if (matSelection < 0.95)
                     {
@@ -137,7 +138,7 @@ namespace OneWeek2
             var viewUp = Vector3.UnitY;
             var distToFocus = 10;
             var aperture = 0.1f;
-            var camera = new Camera(lookFrom, lookAt, viewUp, 20, AspectRatio, aperture, distToFocus);
+            var camera = new Camera(lookFrom, lookAt, viewUp, 20, AspectRatio, aperture, distToFocus, 0, 1);
             
             using var streamWriter = new StreamWriter(fileName, false);
             var pixelColors = new Vector3[ImageWidth * ImageHeight];

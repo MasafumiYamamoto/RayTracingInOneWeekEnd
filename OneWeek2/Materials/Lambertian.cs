@@ -15,7 +15,7 @@ namespace OneWeek2.Materials
             MathHelper mathHelper)
         {
             var scatterDirection = hitRecord.Normal + mathHelper.RandomUnitVector();
-            scattered = new Ray(hitRecord.P, scatterDirection);
+            scattered = new Ray(hitRecord.P, scatterDirection, ray.Time);
             attenuation = Albedo;
             return true;
         }

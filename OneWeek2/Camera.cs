@@ -12,6 +12,14 @@ namespace OneWeek2
         
         public float LensRadius { get; }
         
+        /// <summary>
+        /// シャッターの開閉開始時間
+        /// </summary>
+        public float Time0 { get; }
+        /// <summary>
+        /// シャッターの開閉終了時間
+        /// </summary>
+        public float Time1 { get; }
         public Vector3 U { get; }
         
         public Vector3 V { get; }
@@ -30,7 +38,9 @@ namespace OneWeek2
         /// <param name="aspectRatio">アスペクト比率</param>
         /// <param name="aperture"></param>
         /// <param name="focusDistance"></param>
-        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio, float aperture, float focusDistance)
+        /// <param name="time0"></param>
+        /// <param name="time2"></param>
+        public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio, float aperture, float focusDistance, float time0, float time1)
         {
             var theta = _mathHelper.Degree2Radian(vFov);
             var h = MathF.Tan(theta / 2);
@@ -47,6 +57,8 @@ namespace OneWeek2
             LowerLeftCorner = Origin - Horizontal / 2 - Vertical / 2 - focusDistance * W;
 
             LensRadius = aperture / 2;
+            Time0 = time0;
+            Time1 = time1;
         }
 
         public Ray GetRay(float s, float t)
@@ -55,7 +67,8 @@ namespace OneWeek2
             var offset = U * rd.X + V * rd.Y;
 
             return new Ray(Origin + offset,
-                LowerLeftCorner + s * Horizontal + t * Vertical - Origin - offset);
+                LowerLeftCorner + s * Horizontal + t * Vertical - Origin - offset,
+                _mathHelper.Random(Time0,Time1));
         }
     }
 }
