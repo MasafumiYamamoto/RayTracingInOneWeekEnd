@@ -25,6 +25,17 @@ namespace OneWeek2
         }
 
         /// <summary>
+        /// [min, max]で乱数を返す
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public int RandomInt(int min, int max)
+        {
+            return RandomInstance.Next(min, max + 1);
+        }
+
+        /// <summary>
         /// [min, max]に値をクランプする
         /// </summary>
         /// <param name="x"></param>

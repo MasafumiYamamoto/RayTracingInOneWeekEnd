@@ -29,5 +29,6 @@ namespace OneWeek2
     public interface IHittable
     {
         bool Hit(in Ray ray, in float tMin, in float tMax, ref HitRecord rec);
+        bool BoundingBox(float t0, float t1, ref AABB outputBox);
     }
 }

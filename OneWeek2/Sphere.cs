@@ -58,5 +58,12 @@ namespace OneWeek2
 
             return false;
         }
+
+        public bool BoundingBox(float t0, float t1, ref AABB outputBox)
+        {
+            outputBox = new AABB(_center - new Vector3(_radius, _radius, _radius),
+                _center + new Vector3(_radius, _radius, _radius));
+            return true;
+        }
     }
 }

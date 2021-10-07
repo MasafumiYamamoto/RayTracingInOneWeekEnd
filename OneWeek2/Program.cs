@@ -122,13 +122,13 @@ namespace OneWeek2
                 Thread.Sleep(33);
                 Console.Write(Bars[j++ % 4]);
                 Console.Write($"{((int) (10000.0 * finLines / ImageHeight) / 100.0).ToString()}%");
-                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop);
             }
         }
 
         static void Main(string[] args)
         {
-            Console.Write($"Start {DateTime.Now}\n");
+            Console.WriteLine($"Start {DateTime.Now}\n");
             
             var fileName = $"./hoge_{SamplesPerPixel.ToString()}spp.ppm";
             

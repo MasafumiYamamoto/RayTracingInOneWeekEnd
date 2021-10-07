@@ -30,5 +30,29 @@ namespace OneWeek2
 
             return hitAnything;
         }
+
+        public bool BoundingBox(float t0, float t1, ref AABB outputBox)
+        {
+            if (Objects.Count==0)
+            {
+                return false;
+            }
+
+            AABB tempBox = new AABB();
+            var firstBox = true;
+            
+            foreach (var hittable in Objects)
+            {
+                if (!hittable.BoundingBox(t0, t1, ref tempBox))
+                {
+                    return false;
+                }
+
+                outputBox = firstBox ? tempBox : AABB.SurroundingBox(tempBox, outputBox);
+                firstBox = false;
+            }
+
+            return true;
+        }
     }
 }
