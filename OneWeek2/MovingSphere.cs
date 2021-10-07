@@ -64,6 +64,18 @@ namespace OneWeek2
             return false;
         }
 
+        public bool BoundingBox(float t0, float t1, ref AABB outputBox)
+        {
+            var box0 = new AABB(Center0 - new Vector3(Radius, Radius, Radius),
+                Center0 + new Vector3(Radius, Radius, Radius));
+            var box1 = new AABB(Center1 - new Vector3(Radius, Radius, Radius),
+                Center1 + new Vector3(Radius, Radius, Radius));
+            outputBox = AABB.SurroundingBox(box0, box1);
+            return true;
+        }
+
+        
+
         private Vector3 Center(float time)
         {
             return Center0 + ((time - Time0) / (Time1 - Time0)) * (Center1 - Center0);
