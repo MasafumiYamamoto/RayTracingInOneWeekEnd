@@ -39,7 +39,7 @@ namespace OneWeek2
         /// <param name="aperture"></param>
         /// <param name="focusDistance"></param>
         /// <param name="time0"></param>
-        /// <param name="time2"></param>
+        /// <param name="time1"></param>
         public Camera(Vector3 lookFrom, Vector3 lookAt, Vector3 viewUp, float vFov, float aspectRatio, float aperture, float focusDistance, float time0, float time1)
         {
             var theta = _mathHelper.Degree2Radian(vFov);

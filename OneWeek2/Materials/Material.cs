@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace OneWeek2
+namespace OneWeek2.Materials
 {
     public abstract class Material
     {

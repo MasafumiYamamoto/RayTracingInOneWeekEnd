@@ -5,7 +5,7 @@ namespace OneWeek2
 {
     public class MathHelper
     {
-        private readonly Random RandomInstance = new();
+        private readonly Random _randomInstance = new();
         
         public float Degree2Radian(float degree)
         {
@@ -21,7 +21,7 @@ namespace OneWeek2
         public float Random(float min=0, float max=1)
         {
             // return min + (max - min) * (float)new Random().NextDouble();
-            return min + (max - min) * (float) RandomInstance.NextDouble();
+            return min + (max - min) * (float) _randomInstance.NextDouble();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace OneWeek2
         /// <returns></returns>
         public int RandomInt(int min, int max)
         {
-            return RandomInstance.Next(min, max + 1);
+            return _randomInstance.Next(min, max + 1);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace OneWeek2
         public Vector3 RandomUnitVector()
         {
             var a = Random(0, 2 * MathF.PI);
-            var z = Random(-1, 1);
+            var z = Random(-1);
             var r = MathF.Sqrt(1 - z * z);
             return new Vector3(r * MathF.Cos(a), r * MathF.Sin(a), z);
         }

@@ -128,10 +128,9 @@ namespace OneWeek2
         private static HittableList GenerateTwoSpheresScene()
         {
             var world = new HittableList();
-            var checker = new CheckerTexture(new SolidColor(new Vector3(0.2f, 0.3f, 0.9f)),
-                new SolidColor(new Vector3(0.9f, 0.9f, 0.9f)));
-            world.Objects.Add(new Sphere(new Vector3(0, -10, 0), 10, new Lambertian(checker)));
-            world.Objects.Add(new Sphere(new Vector3(0, 10, 0), 10, new Lambertian(checker)));
+            var perText = new NoiseTexture();
+            world.Objects.Add(new Sphere(new Vector3(0, -100, 0), 100, new Lambertian(perText)));
+            world.Objects.Add(new Sphere(new Vector3(0, 2, 0), 2, new Lambertian(perText)));
             return world;
         }
 

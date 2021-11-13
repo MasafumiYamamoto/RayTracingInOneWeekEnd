@@ -86,7 +86,7 @@ namespace OneWeek2
             }
         }
 
-        private bool BoxCompare(IHittable a, IHittable b, int axis)
+        private bool BoxCompare(IHittable a, IHittable b, int compareAxis)
         {
             var boxA = new AABB();
             var boxB = new AABB();
@@ -95,7 +95,7 @@ namespace OneWeek2
                 // Console.WriteLine("No Bounding Box in BVH node constructor");
             }
             
-            switch (axis)
+            switch (compareAxis)
             {
                 case 0:
                     return boxA.Min.X < boxB.Min.X;
@@ -104,7 +104,7 @@ namespace OneWeek2
                 case 2:
                     return boxA.Min.Z < boxB.Max.Z;
                 default:
-                    throw new InvalidOperationException($"Invalid axis {axis}");
+                    throw new InvalidOperationException($"Invalid axis {compareAxis}");
             }
         }
 

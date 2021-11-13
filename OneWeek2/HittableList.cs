@@ -4,7 +4,7 @@ namespace OneWeek2
 {
     public class HittableList : IHittable
     {
-        public List<IHittable> Objects { get; } = default;
+        public List<IHittable> Objects { get; }
 
         public HittableList()
         {

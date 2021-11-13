@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using OneWeek2.Materials;
 
 namespace OneWeek2
 {
@@ -66,7 +67,7 @@ namespace OneWeek2
             return true;
         }
 
-        public void GetSphereUV(in Vector3 p, out float u, out float v)
+        public void GetSphereUv(in Vector3 p, out float u, out float v)
         {
             var phi = MathF.Atan2(p.Z, p.X);
             var theta = MathF.Asin(p.Y);
