@@ -5,6 +5,8 @@ namespace OneWeek2
     public class HitRecord
     {
         public float T;
+        public float U; // テクスチャ座標
+        public float V; // テクスチャ座標
         public Vector3 P;
         public Vector3 Normal;
         public bool FrontFace;

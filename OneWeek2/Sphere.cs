@@ -65,5 +65,13 @@ namespace OneWeek2
                 _center + new Vector3(_radius, _radius, _radius));
             return true;
         }
+
+        public void GetSphereUV(in Vector3 p, out float u, out float v)
+        {
+            var phi = MathF.Atan2(p.Z, p.X);
+            var theta = MathF.Asin(p.Y);
+            u = 1 - (phi + MathF.PI) / (2 * MathF.PI);
+            v = (theta + MathF.PI / 2) / MathF.PI;
+        }
     }
 }

@@ -4,9 +4,9 @@ namespace OneWeek2.Materials
 {
     public class Lambertian : Material
     {
-        public Vector3 Albedo { get; }
+        public ITexture Albedo { get; }
 
-        public Lambertian(Vector3 albedo)
+        public Lambertian(ITexture albedo)
         {
             Albedo = albedo;
         }
@@ -16,7 +16,7 @@ namespace OneWeek2.Materials
         {
             var scatterDirection = hitRecord.Normal + mathHelper.RandomUnitVector();
             scattered = new Ray(hitRecord.P, scatterDirection, ray.Time);
-            attenuation = Albedo;
+            attenuation = Albedo.Value(hitRecord.U, hitRecord.V, hitRecord.P);
             return true;
         }
     }
