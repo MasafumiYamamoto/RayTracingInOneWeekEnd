@@ -42,6 +42,9 @@ namespace OneWeek2
                     var outwardNormal = (rec.P - _center) / _radius;
                     rec.SetFaceNormal(ray, outwardNormal);
                     rec.Material = _material;
+                    GetSphereUv((rec.P-_center)/_radius, out var u, out var v);
+                    rec.U = u;
+                    rec.V = v;
                     return true;
                 }
 
@@ -53,6 +56,9 @@ namespace OneWeek2
                     var outwardNormal = (rec.P - _center) / _radius;
                     rec.SetFaceNormal(ray, outwardNormal);
                     rec.Material = _material;
+                    GetSphereUv((rec.P-_center)/_radius, out var u, out var v);
+                    rec.U = u;
+                    rec.V = v;
                     return true;
                 }
             }

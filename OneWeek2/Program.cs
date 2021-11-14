@@ -134,6 +134,16 @@ namespace OneWeek2
             return world;
         }
 
+        private static HittableList GenerateEarth()
+        {
+            var world = new HittableList();
+            var earthTexture = new ImageTexture("./earthmap.jpg");
+            var earthSurface = new Lambertian(earthTexture);
+            var globe = new Sphere(Vector3.Zero, 2, earthSurface);
+            world.Objects.Add(globe);
+            return world;
+        }
+
         private static float _finLines;
 
         static void DebugProgress()
@@ -158,7 +168,7 @@ namespace OneWeek2
 
             var fileName = $"./res_{SamplesPerPixel.ToString()}spp.ppm";
 
-            var world = GenerateTwoSpheresScene();
+            var world = GenerateEarth();
             var lookFrom = new Vector3(13, 2, 3);
             var lookAt = new Vector3(0, 0, 0);
             var viewUp = Vector3.UnitY;
