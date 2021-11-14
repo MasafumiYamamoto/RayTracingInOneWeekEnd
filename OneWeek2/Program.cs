@@ -10,10 +10,10 @@ namespace OneWeek2
 {
     class Program
     {
-        private const float AspectRatio = 16.0f / 9f;
-        private const int ImageWidth = 384;
+        private const float AspectRatio = 1;
+        private const int ImageWidth = 500;
         private const int ImageHeight = (int)(ImageWidth / AspectRatio);
-        private const int SamplesPerPixel = 64;
+        private const int SamplesPerPixel = 512;
         private const int MaxDepth = 50;
         private const float Gamma = 2f;
         private static readonly char[] Bars = { '/', '-', '\\', '|' };
@@ -37,7 +37,7 @@ namespace OneWeek2
                 $"{r.ToString(CultureInfo.InvariantCulture)} {g.ToString(CultureInfo.InvariantCulture)} {b.ToString(CultureInfo.InvariantCulture)} \n");
         }
 
-        static Vector3 RayColor(in Ray ray, in IHittable world, int depth, MathHelper mathHelper)
+        static Vector3 RayColor(in Ray ray, in Vector3 backGround, in IHittable world, int depth, MathHelper mathHelper)
         {
             var hitRecord = new HitRecord();
             hitRecord.Clear();
@@ -47,19 +47,19 @@ namespace OneWeek2
                 return Vector3.Zero;
             }
 
-            if (world.Hit(ray, 0.001f, float.MaxValue, ref hitRecord))
+            // レイがどこともぶつからなければ背景色を返す
+            if (!world.Hit(ray, 0.001f, float.MaxValue, ref hitRecord))
             {
-                if (hitRecord.Material.Scatter(ray, hitRecord, out var attenuation, out var scattered, mathHelper))
-                {
-                    return attenuation * RayColor(scattered, world, --depth, mathHelper);
-                }
-
-                return Vector3.Zero;
+                return backGround;
             }
 
-            var unitDirection = Vector3.Normalize(ray.Direction);
-            var t = 0.5f * (unitDirection.Y + 1);
-            return (1 - t) * Vector3.One + t * new Vector3(0.5f, 0.7f, 1f);
+            var emitted = hitRecord.Material.Emitted(hitRecord.U, hitRecord.V, hitRecord.P);
+
+            if (!hitRecord.Material.Scatter(ray, hitRecord, out var attenuation, out var scattered, mathHelper))
+            {
+                return emitted;
+            }
+            return emitted + attenuation * RayColor(scattered, backGround, world, --depth, mathHelper);
         }
 
         /// <summary>
@@ -134,6 +134,20 @@ namespace OneWeek2
             return world;
         }
 
+        private static HittableList GenerateSimpleLightScene()
+        {
+            var world = new HittableList();
+
+            var perText = new NoiseTexture();
+            world.Objects.Add(new Sphere(new Vector3(0, -1000, 0), 1000, new Lambertian(perText)));
+            world.Objects.Add(new Sphere(new Vector3(0,2,0), 2, new Lambertian(perText)));
+            
+            var diffuseLight = new DiffuseLight(new SolidColor(new Vector3(4,4,4)));
+            world.Objects.Add(new Sphere(new Vector3(0,7,0), 2, diffuseLight));
+            world.Objects.Add(new XYRect(3,5,1,3,-2, diffuseLight));
+            return world;
+        }
+
         private static HittableList GenerateEarth()
         {
             var world = new HittableList();
@@ -143,6 +157,25 @@ namespace OneWeek2
             world.Objects.Add(globe);
             return world;
         }
+
+        private static HittableList GenerateCornelBox()
+        {
+            var world = new HittableList();
+            var red = new Lambertian(new SolidColor(new Vector3(0.65f, 0.05f, 0.05f)));
+            var white = new Lambertian(new SolidColor(new Vector3(0.73f, 0.73f, 0.73f)));
+            var green = new Lambertian(new SolidColor(new Vector3(0.12f, 0.45f, 0.15f)));
+            var light = new DiffuseLight(new SolidColor(new Vector3(15, 15, 15)));
+            
+            world.Objects.Add(new YZRect(0,555,0,555,555,green));
+            world.Objects.Add(new YZRect(0,555,0,555,0,red));
+            world.Objects.Add(new XZRect(213,343,227,332,554, light));
+            world.Objects.Add(new XZRect(0,555,0,555,0,white));
+            world.Objects.Add(new XZRect(0,555,0,555,555,white));
+            world.Objects.Add(new XYRect(0,555,0,555,555,white));
+            return world;
+        }
+        
+        
 
         private static float _finLines;
 
@@ -168,13 +201,15 @@ namespace OneWeek2
 
             var fileName = $"./res_{SamplesPerPixel.ToString()}spp.ppm";
 
-            var world = GenerateEarth();
-            var lookFrom = new Vector3(13, 2, 3);
-            var lookAt = new Vector3(0, 0, 0);
+            var world = GenerateCornelBox();
+            var lookFrom = new Vector3(278,278,-800);
+            var lookAt = new Vector3(278, 278, 0);
             var viewUp = Vector3.UnitY;
             var distToFocus = 10;
             var aperture = 0.0f;
-            var camera = new Camera(lookFrom, lookAt, viewUp, 20, AspectRatio, aperture, distToFocus, 0, 1);
+            var verticalFoV = 40;
+            var camera = new Camera(lookFrom, lookAt, viewUp, verticalFoV, AspectRatio, aperture, distToFocus, 0, 1);
+            var backGround = Vector3.Zero;
 
             using var streamWriter = new StreamWriter(fileName, false);
             var pixelColors = new Vector3[ImageWidth * ImageHeight];
@@ -205,7 +240,7 @@ namespace OneWeek2
                         var v = (j + mathHelper.Random()) / (ImageHeight - 1);
 
                         var r = camera.GetRay(u, v);
-                        pixelColor += RayColor(r, world, MaxDepth, mathHelper);
+                        pixelColor += RayColor(r,backGround, world, MaxDepth, mathHelper);
                     }
 
                     pixelColors[i + j * ImageWidth] = pixelColor;
