@@ -65,12 +65,12 @@ namespace OneWeek2
         private readonly float _k;
         private readonly Material _material;
 
-        public XZRect(float x0, float x1, float y0, float y1, float k, Material material)
+        public XZRect(float x0, float x1, float z0, float z1, float k, Material material)
         {
             _x0 = x0;
             _x1 = x1;
-            _z0 = y0;
-            _z1 = y1;
+            _z0 = z0;
+            _z1 = z1;
             _k = k;
             _material = material;
         }
@@ -118,12 +118,12 @@ namespace OneWeek2
         private readonly float _k;
         private readonly Material _material;
 
-        public YZRect(float x0, float x1, float y0, float y1, float k, Material material)
+        public YZRect(float y0, float y1, float z0, float z1, float k, Material material)
         {
-            _z0 = x0;
-            _z1 = x1;
             _y0 = y0;
             _y1 = y1;
+            _z0 = z0;
+            _z1 = z1;
             _k = k;
             _material = material;
         }
@@ -143,8 +143,8 @@ namespace OneWeek2
                 return false;
             }
 
-            rec.U = (z - _z0) / (_z1 - _z0);
-            rec.V = (y - _y0) / (_y1 - _y0);
+            rec.U = (y - _y0) / (_y1 - _y0);
+            rec.V = (z - _z0) / (_z1 - _z0);
             rec.T = t;
 
             var outwardNormal = Vector3.UnitX;

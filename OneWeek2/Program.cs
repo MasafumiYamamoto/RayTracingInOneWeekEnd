@@ -13,7 +13,7 @@ namespace OneWeek2
         private const float AspectRatio = 1;
         private const int ImageWidth = 500;
         private const int ImageHeight = (int)(ImageWidth / AspectRatio);
-        private const int SamplesPerPixel = 512;
+        private const int SamplesPerPixel = 256;
         private const int MaxDepth = 50;
         private const float Gamma = 2f;
         private static readonly char[] Bars = { '/', '-', '\\', '|' };
@@ -59,6 +59,7 @@ namespace OneWeek2
             {
                 return emitted;
             }
+
             return emitted + attenuation * RayColor(scattered, backGround, world, --depth, mathHelper);
         }
 
@@ -140,11 +141,11 @@ namespace OneWeek2
 
             var perText = new NoiseTexture();
             world.Objects.Add(new Sphere(new Vector3(0, -1000, 0), 1000, new Lambertian(perText)));
-            world.Objects.Add(new Sphere(new Vector3(0,2,0), 2, new Lambertian(perText)));
-            
-            var diffuseLight = new DiffuseLight(new SolidColor(new Vector3(4,4,4)));
-            world.Objects.Add(new Sphere(new Vector3(0,7,0), 2, diffuseLight));
-            world.Objects.Add(new XYRect(3,5,1,3,-2, diffuseLight));
+            world.Objects.Add(new Sphere(new Vector3(0, 2, 0), 2, new Lambertian(perText)));
+
+            var diffuseLight = new DiffuseLight(new SolidColor(new Vector3(4, 4, 4)));
+            world.Objects.Add(new Sphere(new Vector3(0, 7, 0), 2, diffuseLight));
+            world.Objects.Add(new XYRect(3, 5, 1, 3, -2, diffuseLight));
             return world;
         }
 
@@ -165,17 +166,27 @@ namespace OneWeek2
             var white = new Lambertian(new SolidColor(new Vector3(0.73f, 0.73f, 0.73f)));
             var green = new Lambertian(new SolidColor(new Vector3(0.12f, 0.45f, 0.15f)));
             var light = new DiffuseLight(new SolidColor(new Vector3(15, 15, 15)));
-            
-            world.Objects.Add(new YZRect(0,555,0,555,555,green));
-            world.Objects.Add(new YZRect(0,555,0,555,0,red));
-            world.Objects.Add(new XZRect(213,343,227,332,554, light));
-            world.Objects.Add(new XZRect(0,555,0,555,0,white));
-            world.Objects.Add(new XZRect(0,555,0,555,555,white));
-            world.Objects.Add(new XYRect(0,555,0,555,555,white));
+
+            world.Objects.Add(new YZRect(0, 555, 0, 555, 555, green));
+            world.Objects.Add(new YZRect(0, 555, 0, 555, 0, red));
+            world.Objects.Add(new XZRect(213, 343, 227, 332, 554, light));
+            world.Objects.Add(new XZRect(0, 555, 0, 555, 0, white));
+            world.Objects.Add(new XZRect(0, 555, 0, 555, 555, white));
+            world.Objects.Add(new XYRect(0, 555, 0, 555, 555, white));
+
+            IHittable box1 = new Box(Vector3.Zero, new Vector3(165, 330, 165), white);
+            box1 = new RotateY(box1, 15, new MathHelper());
+            box1 = new Translate(box1, new Vector3(265, 0, 295));
+            world.Objects.Add(box1);
+
+            IHittable box2 = new Box(Vector3.Zero, new Vector3(165, 165, 165), white);
+            box2 = new RotateY(box2, -18, new MathHelper());
+            box2 = new Translate(box2, new Vector3(130, 0, 65));
+            world.Objects.Add(box2);
+
             return world;
         }
-        
-        
+
 
         private static float _finLines;
 
@@ -202,7 +213,7 @@ namespace OneWeek2
             var fileName = $"./res_{SamplesPerPixel.ToString()}spp.ppm";
 
             var world = GenerateCornelBox();
-            var lookFrom = new Vector3(278,278,-800);
+            var lookFrom = new Vector3(278, 278, -800);
             var lookAt = new Vector3(278, 278, 0);
             var viewUp = Vector3.UnitY;
             var distToFocus = 10;
@@ -240,7 +251,7 @@ namespace OneWeek2
                         var v = (j + mathHelper.Random()) / (ImageHeight - 1);
 
                         var r = camera.GetRay(u, v);
-                        pixelColor += RayColor(r,backGround, world, MaxDepth, mathHelper);
+                        pixelColor += RayColor(r, backGround, world, MaxDepth, mathHelper);
                     }
 
                     pixelColors[i + j * ImageWidth] = pixelColor;
